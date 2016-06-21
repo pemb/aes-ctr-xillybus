@@ -94,7 +94,7 @@ begin
     sub : sbox port map(
       clk     => clk,
       rst     => rst,
-      bytein  => rk_block(i, 3),
+      bytein  => rk_block(3)(i),
       byteout => subst((i+3) mod 4)
       );
   end generate;
@@ -114,10 +114,10 @@ begin
     elsif(rising_edge(clk)) then
       rcon_d <= rcon;
       for j in 3 downto 0 loop
-        c0(j) <= rk_block(j, 0);
-        c1(j) <= rk_block(j, 0) xor rk_block(j, 1);
-        c2(j) <= rk_block(j, 0) xor rk_block(j, 1) xor rk_block(j, 2);
-        c3(j) <= rk_block(j, 0) xor rk_block(j, 1) xor rk_block(j, 2) xor rk_block(j, 3);
+        c0(j) <= rk_block(0)(j);
+        c1(j) <= rk_block(0)(j) xor rk_block(1)(j);
+        c2(j) <= rk_block(0)(j) xor rk_block(1)(j) xor rk_block(2)(j);
+        c3(j) <= rk_block(0)(j) xor rk_block(1)(j) xor rk_block(2)(j) xor rk_block(3)(j);
       end loop;
     end if;
   end process;

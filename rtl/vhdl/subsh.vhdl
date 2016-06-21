@@ -97,8 +97,8 @@ begin
       sub : sbox port map(
         clk     => clk,
         rst     => rst,
-        bytein  => bi_blk(i, j),
-        byteout => bo_blk(i, (j-i) mod 4)
+        bytein  => bi_blk(j)(i),
+        byteout => bo_blk((j-i) mod 4)(i)
         );
     end generate;
   end generate;
@@ -112,10 +112,10 @@ begin
       -- col2 of nextkey = fc3 xor col0 xor col1 xor col2
       -- col3 of nextkey = fc3 xor col0 xor col1 xor col2 xor col3
       genkey : for j in 3 downto 0 loop
-        nk_blk(j, 0) <= fc3(j) xor c0(j);
-        nk_blk(j, 1) <= fc3(j) xor c1(j);
-        nk_blk(j, 2) <= fc3(j) xor c2(j);
-        nk_blk(j, 3) <= fc3(j) xor c3(j);
+        nk_blk(0)(j) <= fc3(j) xor c0(j);
+        nk_blk(1)(j) <= fc3(j) xor c1(j);
+        nk_blk(2)(j) <= fc3(j) xor c2(j);
+        nk_blk(3)(j) <= fc3(j) xor c3(j);
       end loop;
     end if;
   end process;

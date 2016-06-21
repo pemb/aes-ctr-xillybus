@@ -58,7 +58,7 @@ package aes_pkg is
   type blockcol is array(3 downto 0) of std_logic_vector(7 downto 0);
   constant zero_col   : blockcol  := (others => (others => '0'));
   -- A datablock of 16 bytes
-  type datablock is array(3 downto 0, 3 downto 0) of std_logic_vector(7 downto 0);
+  type datablock is array(3 downto 0) of blockcol;
   constant zero_data  : datablock := (others => (others => (others => '0')));
   -- Vector of columns
   type colnet is array(natural range<>) of blockcol;
@@ -167,7 +167,7 @@ package body aes_pkg is
   begin
     l0 : for i in 0 to 3 loop
       l1 : for j in 0 to 3 loop
-        temp(index+7 downto index) := db(3-j, 3-i);
+        temp(index+7 downto index) := db(3-i)(3-j);
         index := index + 8;
       end loop;
     end loop;
@@ -180,7 +180,7 @@ package body aes_pkg is
   begin
     l0 : for i in 0 to 3 loop
       l1 : for j in 0 to 3 loop
-        temp(3-j, 3-i) := slv(index+7 downto index);
+        temp(3-i)(3-j) := slv(index+7 downto index);
         index := index + 8;
       end loop;
     end loop;

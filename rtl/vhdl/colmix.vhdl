@@ -88,14 +88,14 @@ begin
     mix : mixcol port map(
       clk  => clk,
       rst  => rst,
-      in0  => blockin(0, i),
-      in1  => blockin(1, i),
-      in2  => blockin(2, i),
-      in3  => blockin(3, i),
-      out0 => blockout(0, i),
-      out1 => blockout(1, i),
-      out2 => blockout(2, i),
-      out3 => blockout(3, i)
+      in0  => blockin(i)(0),
+      in1  => blockin(i)(1),
+      in2  => blockin(i)(2),
+      in3  => blockin(i)(3),
+      out0 => blockout(i)(0),
+      out1 => blockout(i)(1),
+      out2 => blockout(i)(2),
+      out3 => blockout(i)(3)
       );
   end generate;
   process(clk, rst)
