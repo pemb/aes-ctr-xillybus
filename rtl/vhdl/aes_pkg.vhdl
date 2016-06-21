@@ -56,10 +56,10 @@ use IEEE.std_logic_1164.all;
 package aes_pkg is
   -- A column of 4 bytes
   type blockcol is array(3 downto 0) of std_logic_vector(7 downto 0);
-  constant zero_col  : blockcol  := (X"00", X"00", X"00", X"00");
+  constant zero_col  : blockcol  := (others => (others => '0'));
   -- A datablock of 16 bytes
   type datablock is array(3 downto 0, 3 downto 0) of std_logic_vector(7 downto 0);
-  constant zero_data : datablock := ((X"00", X"00", X"00", X"00"), (X"00", X"00", X"00", X"00"), (X"00", X"00", X"00", X"00"), (X"00", X"00", X"00", X"00"));
+  constant zero_data : datablock := (others => (others => (others => '0')));
   -- Vector of columns
   type colnet is array(natural range<>) of blockcol;
   -- Vector of blocks
