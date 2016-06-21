@@ -12,4 +12,4 @@ ghdl -a --ieee=synopsys $SRCROOT/aes_top.vhdl
 ghdl -a --ieee=synopsys $TBROOT/tb_aes.vhdl
 ghdl -e --ieee=synopsys tb_aes
 ./tb_aes
-ghdl --clean
+ghdl --remove
