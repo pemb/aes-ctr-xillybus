@@ -68,9 +68,9 @@ entity aes_top is
   port(
     clk_i        : in  std_logic;
     rst_i        : in  std_logic;
-    plaintext_i  : in  datablock;
-    keyblock_i   : in  datablock;
-    ciphertext_o : out datablock
+    plaintext_i  : in  std_logic_vector(127 downto 0);
+    keyblock_i   : in  std_logic_vector(127 downto 0);
+    ciphertext_o : out std_logic_vector(127 downto 0)
     );
 end aes_top;
 
@@ -78,7 +78,7 @@ architecture rtl of aes_top is
   signal fc3, c0, c1, c2, c3                   : colnet(9 downto 0);
   signal textnet_a_s, textnet_s_m, textnet_m_a : datanet(9 downto 0);
   signal key_m, key_s                          : datanet(9 downto 0);
-  signal textnet_s_a                           : datablock;
+  signal textnet_s_a               : std_logic_vector(127 downto 0);
 
 begin
   key_m(0)       <= keyblock_i;

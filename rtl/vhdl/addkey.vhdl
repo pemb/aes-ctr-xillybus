@@ -76,9 +76,9 @@ entity addkey is
     ); port(
       clk      : in  std_logic;
       rst      : in  std_logic;
-      roundkey : in  datablock;
-      datain   : in  datablock;
-      dataout  : out datablock;
+      roundkey : in  std_logic_vector(127 downto 0);
+      datain   : in  std_logic_vector(127 downto 0);
+      dataout  : out std_logic_vector(127 downto 0);
       fc3      : out blockcol;
       c0       : out blockcol;
       c1       : out blockcol;
@@ -88,7 +88,6 @@ entity addkey is
 end addkey;
 
 architecture rtl of addkey is
-  signal added : datablock;
 begin
   step1 : keysched1 generic map(
     rcon => rcon
@@ -102,18 +101,13 @@ begin
       c2       => c2,
       c3       => c3
       );
-  g0 : for i in 3 downto 0 generate
-    g1 : for j in 3 downto 0 generate
-      added(i, j) <= datain(i, j) xor roundkey(i, j);
-    end generate;
-  end generate;
 
   process(clk, rst)
   begin
     if(rst = '1') then
-      dataout <= zero_data;
+      dataout <= (others => '0');
     elsif(rising_edge(clk)) then
-      dataout <= added;
+      dataout <= datain xor roundkey;
     end if;
   end process;
 end rtl;

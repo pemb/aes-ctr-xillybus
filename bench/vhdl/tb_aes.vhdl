@@ -69,23 +69,13 @@ end tb_aes;
 
 architecture rtl of tb_aes is
   signal clk          : std_logic;         -- clock
-  signal plaintext    : datablock;
-  signal key          : datablock;
-  signal cipher       : datablock;
+  signal plaintext    : std_logic_vector(127 downto 0);
+  signal key          : std_logic_vector(127 downto 0);
+  signal cipher       : std_logic_vector(127 downto 0);
   signal rst          : std_logic;         -- reset input
   signal op_start     : std_logic;         -- signal that output started
   signal sim_end      : std_logic := '0';  -- signal that simulation ended
   constant clk_period : time      := 10 ns;
-
-  component aes_top is
-    port(
-      clk_i        : in  std_logic;
-      rst_i        : in  std_logic;
-      plaintext_i  : in  datablock;
-      keyblock_i   : in  datablock;
-      ciphertext_o : out datablock
-      );
-  end component;
 
 begin
   -- The wiring of the top module
@@ -131,16 +121,8 @@ begin
     hread(line_in, plaintext_block);
     hread(line_in, key_block);
 
-    for i in 3 downto 0 loop
-      for j in 3 downto 0 loop
-        plaintext(3-j, 3-i) <= plaintext_block((i*32 + j*8 + 7) downto (i*32 + j*8));
-      end loop;
-    end loop;
-    for i in 3 downto 0 loop
-      for j in 3 downto 0 loop
-        key(3-j, 3-i) <= key_block((i*32 + j*8 + 7) downto (i*32 + j*8));
-      end loop;
-    end loop;
+    plaintext <= plaintext_block;
+    key <= key_block;
 
     wait for clk_period;
   end process;
@@ -184,21 +166,16 @@ begin
       succeded := true;
       readline(opfile, line_in);         -- read in one expected result
       hread(line_in, exp_cipher_block);  -- read in one byte
-      for i in 3 downto 0 loop
-        for j in 3 downto 0 loop
-          if(exp_cipher_block((i*32 + j*8 + 7) downto (i*32 + j*8)) /= cipher(3-j, 3-i)) then
-            succeded := false;           -- check failed
-            all_ok   := false;
-          end if;
-        end loop;
-      end loop;
+
+      if(exp_cipher_block /= cipher) then
+        succeded := false;           -- check failed
+        all_ok   := false;
+      end if;
+
       -- writing the output line
-      for i in 3 downto 0 loop
-        for j in 3 downto 0 loop
-          hwrite(line_out, cipher(3-j, 3-i));
-          hwrite(line_out_file, cipher(3-j, 3-i));
-        end loop;
-      end loop;
+      hwrite(line_out, cipher);
+      hwrite(line_out_file, cipher);
+
       write(line_out, ' ');
       write(line_out_file, ' ');
       -- writing the comparison result

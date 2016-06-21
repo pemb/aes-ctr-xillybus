@@ -74,7 +74,7 @@ entity keysched1 is
     ); port(
       clk      : in  std_logic;
       rst      : in  std_logic;
-      roundkey : in  datablock;
+      roundkey : in  std_logic_vector(127 downto 0);
       fc3      : out blockcol;
       c0       : out blockcol;
       c1       : out blockcol;
@@ -87,31 +87,18 @@ architecture rtl of keysched1 is
   signal subst                  : blockcol;
   signal key0, key1, key2, key3 : std_logic_vector(7 downto 0);
   signal rcon_d                 : std_logic_vector(7 downto 0);
+  signal rk_block : datablock;
 begin
-  sub0 : sbox port map(
-    clk     => clk,
-    rst     => rst,
-    bytein  => roundkey(0, 3),
-    byteout => subst(3)
-    );
-  sub1 : sbox port map(
-    clk     => clk,
-    rst     => rst,
-    bytein  => roundkey(1, 3),
-    byteout => subst(0)
-    );
-  sub2 : sbox port map(
-    clk     => clk,
-    rst     => rst,
-    bytein  => roundkey(2, 3),
-    byteout => subst(1)
-    );
-  sub3 : sbox port map(
-    clk     => clk,
-    rst     => rst,
-    bytein  => roundkey(3, 3),
-    byteout => subst(2)
-    );
+  rk_block <= slv2db(roundkey);
+  g0: for i in 0 to 3 generate
+    sub : sbox port map(
+      clk     => clk,
+      rst     => rst,
+      bytein  => rk_block(i, 3),
+      byteout => subst((i+3) mod 4)
+      );
+  end generate;
+  
   fc3(0) <= subst(0) xor rcon_d;
   fc3(1) <= subst(1);
   fc3(2) <= subst(2);
@@ -127,10 +114,10 @@ begin
     elsif(rising_edge(clk)) then
       rcon_d <= rcon;
       for j in 3 downto 0 loop
-        c0(j) <= roundkey(j, 0);
-        c1(j) <= roundkey(j, 0) xor roundkey(j, 1);
-        c2(j) <= roundkey(j, 0) xor roundkey(j, 1) xor roundkey(j, 2);
-        c3(j) <= roundkey(j, 0) xor roundkey(j, 1) xor roundkey(j, 2) xor roundkey(j, 3);
+        c0(j) <= rk_block(j, 0);
+        c1(j) <= rk_block(j, 0) xor rk_block(j, 1);
+        c2(j) <= rk_block(j, 0) xor rk_block(j, 1) xor rk_block(j, 2);
+        c3(j) <= rk_block(j, 0) xor rk_block(j, 1) xor rk_block(j, 2) xor rk_block(j, 3);
       end loop;
     end if;
   end process;

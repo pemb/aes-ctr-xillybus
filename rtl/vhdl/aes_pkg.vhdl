@@ -63,57 +63,60 @@ package aes_pkg is
   -- Vector of columns
   type colnet is array(natural range<>) of blockcol;
   -- Vector of blocks
-  type datanet is array(natural range<>) of datablock;
+  type datanet is array(natural range<>) of std_logic_vector(127 downto 0);
   -- the 10 rcon bytes
   type rconarr is array(9 downto 0) of std_logic_vector(7 downto 0);
   constant rcon_const : rconarr   := (X"36", X"1b", X"80", X"40", X"20", X"10", X"08", X"04", X"02", X"01");
+
+  function db2slv(db : datablock) return std_logic_vector;
+
+  function slv2db(slv : std_logic_vector(127 downto 0)) return datablock;
+
   component sboxshr is
     port(
       clk      : in  std_logic;
       rst      : in  std_logic;
-      blockin  : in  datablock;
+      blockin  : in  std_logic_vector(127 downto 0);
       fc3      : in  blockcol;
       c0       : in  blockcol;
       c1       : in  blockcol;
       c2       : in  blockcol;
       c3       : in  blockcol;
-      nextkey  : out datablock;
-      blockout : out datablock
+      nextkey  : out std_logic_vector(127 downto 0);
+      blockout : out std_logic_vector(127 downto 0)
       );
   end component;
   component colmix is
-    port(
+    port (
       clk     : in  std_logic;
       rst     : in  std_logic;
-      datain  : in  datablock;
-      inrkey  : in  datablock;
-      outrkey : out datablock;
-      dataout : out datablock
-      );
-  end component;
+      datain  : in  std_logic_vector(127 downto 0);
+      inrkey  : in  std_logic_vector(127 downto 0);
+      outrkey : out std_logic_vector(127 downto 0);
+      dataout : out std_logic_vector(127 downto 0)); 
+  end component colmix;
   component addkey is
     generic (
-      rcon : in std_logic_vector(7 downto 0)
-      ); port(
-        clk      : in  std_logic;
-        rst      : in  std_logic;
-        roundkey : in  datablock;
-        datain   : in  datablock;
-        dataout  : out datablock;
-        fc3      : out blockcol;
-        c0       : out blockcol;
-        c1       : out blockcol;
-        c2       : out blockcol;
-        c3       : out blockcol
-        );
-  end component;
+      rcon : std_logic_vector(7 downto 0)); 
+    port (
+      clk      : in  std_logic;
+      rst      : in  std_logic;
+      roundkey : in  std_logic_vector(127 downto 0);
+      datain   : in  std_logic_vector(127 downto 0);
+      dataout  : out std_logic_vector(127 downto 0);
+      fc3      : out blockcol;
+      c0       : out blockcol;
+      c1       : out blockcol;
+      c2       : out blockcol;
+      c3       : out blockcol); 
+  end component addkey;
   component keysched1 is
     generic (
       rcon : in std_logic_vector(7 downto 0)
       ); port(
         clk      : in  std_logic;
         rst      : in  std_logic;
-        roundkey : in  datablock;
+        roundkey : in  std_logic_vector(127 downto 0);
         fc3      : out blockcol;
         c0       : out blockcol;
         c1       : out blockcol;
@@ -143,4 +146,46 @@ package aes_pkg is
       byteout : out std_logic_vector(7 downto 0)
       );
   end component;
+
+  component aes_top is
+    port(
+      clk_i        : in  std_logic;
+      rst_i        : in  std_logic;
+      plaintext_i  : in  std_logic_vector(127 downto 0);
+      keyblock_i   : in  std_logic_vector(127 downto 0);
+      ciphertext_o : out std_logic_vector(127 downto 0)
+      );
+  end component;
+
 end package aes_pkg;
+
+package body aes_pkg is
+
+  function db2slv(db : datablock) return std_logic_vector is
+    variable temp  : std_logic_vector(127 downto 0);
+    variable index : integer := 0;
+  begin
+    l0 : for i in 0 to 3 loop
+      l1 : for j in 0 to 3 loop
+        temp(index+7 downto index) := db(3-j, 3-i);
+        index := index + 8;
+      end loop;
+    end loop;
+    return temp;
+  end db2slv;
+
+  function slv2db(slv : std_logic_vector(127 downto 0)) return datablock is
+    variable temp  : datablock;
+    variable index : integer := 0;
+  begin
+    l0 : for i in 0 to 3 loop
+      l1 : for j in 0 to 3 loop
+        temp(3-j, 3-i) := slv(index+7 downto index);
+        index := index + 8;
+      end loop;
+    end loop;
+    return temp;
+  end slv2db;
+
+end aes_pkg;
+
