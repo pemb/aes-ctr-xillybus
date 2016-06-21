@@ -87,19 +87,6 @@ entity addkey is
 end addkey;
 
 architecture rtl of addkey is
-  component keysched1 is
-    port(
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      roundkey : in  datablock;
-      rcon     : in  std_logic_vector(7 downto 0);
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol
-      );
-  end component;
   signal added : datablock;
 begin
   step1 : keysched1 port map(

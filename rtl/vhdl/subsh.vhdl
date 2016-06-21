@@ -85,14 +85,6 @@ entity sboxshr is
 end sboxshr;
 
 architecture rtl of sboxshr is
-  component sbox is
-    port(
-      clk     : in  std_logic;
-      rst     : in  std_logic;
-      bytein  : in  std_logic_vector(7 downto 0);
-      byteout : out std_logic_vector(7 downto 0)
-      );
-  end component;
 begin
   -- The sbox, the output going to the appropriate state byte after shiftrows
   g0 : for i in 3 downto 0 generate

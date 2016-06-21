@@ -67,4 +67,78 @@ package aes_pkg is
   -- the 10 rcon bytes
   type rconarr is array(9 downto 0) of std_logic_vector(7 downto 0);
   constant rcon      : rconarr   := (X"36", X"1b", X"80", X"40", X"20", X"10", X"08", X"04", X"02", X"01");
+  component sboxshr is
+    port(
+      clk      : in  std_logic;
+      rst      : in  std_logic;
+      blockin  : in  datablock;
+      fc3      : in  blockcol;
+      c0       : in  blockcol;
+      c1       : in  blockcol;
+      c2       : in  blockcol;
+      c3       : in  blockcol;
+      nextkey  : out datablock;
+      blockout : out datablock
+      );
+  end component;
+  component colmix is
+    port(
+      clk     : in  std_logic;
+      rst     : in  std_logic;
+      datain  : in  datablock;
+      inrkey  : in  datablock;
+      outrkey : out datablock;
+      dataout : out datablock
+      );
+  end component;
+  component addkey is
+    port(
+      clk      : in  std_logic;
+      rst      : in  std_logic;
+      roundkey : in  datablock;
+      datain   : in  datablock;
+      rcon     : in  std_logic_vector(7 downto 0);
+      dataout  : out datablock;
+      fc3      : out blockcol;
+      c0       : out blockcol;
+      c1       : out blockcol;
+      c2       : out blockcol;
+      c3       : out blockcol
+      );
+  end component;
+  component keysched1 is
+    port(
+      clk      : in  std_logic;
+      rst      : in  std_logic;
+      roundkey : in  datablock;
+      rcon     : in  std_logic_vector(7 downto 0);
+      fc3      : out blockcol;
+      c0       : out blockcol;
+      c1       : out blockcol;
+      c2       : out blockcol;
+      c3       : out blockcol
+      );
+  end component;
+  component mixcol is
+    port(
+      clk  : in  std_logic;
+      rst  : in  std_logic;
+      in0  : in  std_logic_vector(7 downto 0);
+      in1  : in  std_logic_vector(7 downto 0);
+      in2  : in  std_logic_vector(7 downto 0);
+      in3  : in  std_logic_vector(7 downto 0);
+      out0 : out std_logic_vector(7 downto 0);
+      out1 : out std_logic_vector(7 downto 0);
+      out2 : out std_logic_vector(7 downto 0);
+      out3 : out std_logic_vector(7 downto 0)
+      );
+  end component;
+  component sbox is
+    port(
+      clk     : in  std_logic;
+      rst     : in  std_logic;
+      bytein  : in  std_logic_vector(7 downto 0);
+      byteout : out std_logic_vector(7 downto 0)
+      );
+  end component;
 end package aes_pkg;

@@ -85,14 +85,6 @@ end keysched1;
 architecture rtl of keysched1 is
   signal subst                  : blockcol;
   signal key0, key1, key2, key3 : std_logic_vector(7 downto 0);
-  component sbox is
-    port(
-      clk     : in  std_logic;
-      rst     : in  std_logic;
-      bytein  : in  std_logic_vector(7 downto 0);
-      byteout : out std_logic_vector(7 downto 0)
-      );
-  end component;
   signal rcon_d : std_logic_vector(7 downto 0);
 begin
   sub0 : sbox port map(

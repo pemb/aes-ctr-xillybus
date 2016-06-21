@@ -78,20 +78,6 @@ entity colmix is
 end colmix;
 
 architecture rtl of colmix is
-  component mixcol is
-    port(
-      clk  : in  std_logic;
-      rst  : in  std_logic;
-      in0  : in  std_logic_vector(7 downto 0);
-      in1  : in  std_logic_vector(7 downto 0);
-      in2  : in  std_logic_vector(7 downto 0);
-      in3  : in  std_logic_vector(7 downto 0);
-      out0 : out std_logic_vector(7 downto 0);
-      out1 : out std_logic_vector(7 downto 0);
-      out2 : out std_logic_vector(7 downto 0);
-      out3 : out std_logic_vector(7 downto 0)
-      );
-  end component;
 
 begin
   -- Do the mixcol operation on all the 4 columns

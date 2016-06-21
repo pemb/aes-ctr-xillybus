@@ -80,45 +80,6 @@ architecture rtl of aes_top is
   signal key_m, key_s                          : datanet(9 downto 0);
   signal textnet_s_a                           : datablock;
 
-  component sboxshr is
-    port(
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      blockin  : in  datablock;
-      fc3      : in  blockcol;
-      c0       : in  blockcol;
-      c1       : in  blockcol;
-      c2       : in  blockcol;
-      c3       : in  blockcol;
-      nextkey  : out datablock;
-      blockout : out datablock
-      );
-  end component;
-  component colmix is
-    port(
-      clk     : in  std_logic;
-      rst     : in  std_logic;
-      datain  : in  datablock;
-      inrkey  : in  datablock;
-      outrkey : out datablock;
-      dataout : out datablock
-      );
-  end component;
-  component addkey is
-    port(
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      roundkey : in  datablock;
-      datain   : in  datablock;
-      rcon     : in  std_logic_vector(7 downto 0);
-      dataout  : out datablock;
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol
-      );
-  end component;
 begin
   key_m(0)       <= keyblock_i;
   textnet_m_a(0) <= plaintext_i;
