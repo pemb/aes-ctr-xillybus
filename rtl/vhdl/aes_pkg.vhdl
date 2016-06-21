@@ -56,17 +56,17 @@ use IEEE.std_logic_1164.all;
 package aes_pkg is
   -- A column of 4 bytes
   type blockcol is array(3 downto 0) of std_logic_vector(7 downto 0);
-  constant zero_col  : blockcol  := (others => (others => '0'));
+  constant zero_col   : blockcol  := (others => (others => '0'));
   -- A datablock of 16 bytes
   type datablock is array(3 downto 0, 3 downto 0) of std_logic_vector(7 downto 0);
-  constant zero_data : datablock := (others => (others => (others => '0')));
+  constant zero_data  : datablock := (others => (others => (others => '0')));
   -- Vector of columns
   type colnet is array(natural range<>) of blockcol;
   -- Vector of blocks
   type datanet is array(natural range<>) of datablock;
   -- the 10 rcon bytes
   type rconarr is array(9 downto 0) of std_logic_vector(7 downto 0);
-  constant rcon      : rconarr   := (X"36", X"1b", X"80", X"40", X"20", X"10", X"08", X"04", X"02", X"01");
+  constant rcon_const : rconarr   := (X"36", X"1b", X"80", X"40", X"20", X"10", X"08", X"04", X"02", X"01");
   component sboxshr is
     port(
       clk      : in  std_logic;
@@ -92,32 +92,34 @@ package aes_pkg is
       );
   end component;
   component addkey is
-    port(
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      roundkey : in  datablock;
-      datain   : in  datablock;
-      rcon     : in  std_logic_vector(7 downto 0);
-      dataout  : out datablock;
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol
-      );
+    generic (
+      rcon : in std_logic_vector(7 downto 0)
+      ); port(
+        clk      : in  std_logic;
+        rst      : in  std_logic;
+        roundkey : in  datablock;
+        datain   : in  datablock;
+        dataout  : out datablock;
+        fc3      : out blockcol;
+        c0       : out blockcol;
+        c1       : out blockcol;
+        c2       : out blockcol;
+        c3       : out blockcol
+        );
   end component;
   component keysched1 is
-    port(
-      clk      : in  std_logic;
-      rst      : in  std_logic;
-      roundkey : in  datablock;
-      rcon     : in  std_logic_vector(7 downto 0);
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol
-      );
+    generic (
+      rcon : in std_logic_vector(7 downto 0)
+      ); port(
+        clk      : in  std_logic;
+        rst      : in  std_logic;
+        roundkey : in  datablock;
+        fc3      : out blockcol;
+        c0       : out blockcol;
+        c1       : out blockcol;
+        c2       : out blockcol;
+        c3       : out blockcol
+        );
   end component;
   component mixcol is
     port(

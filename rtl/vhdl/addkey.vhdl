@@ -71,35 +71,37 @@ library work;
 use work.aes_pkg.all;
 
 entity addkey is
-  port(
-    clk      : in  std_logic;
-    rst      : in  std_logic;
-    roundkey : in  datablock;
-    datain   : in  datablock;
-    rcon     : in  std_logic_vector(7 downto 0);
-    dataout  : out datablock;
-    fc3      : out blockcol;
-    c0       : out blockcol;
-    c1       : out blockcol;
-    c2       : out blockcol;
-    c3       : out blockcol
-    );
+  generic (
+    rcon : std_logic_vector(7 downto 0)
+    ); port(
+      clk      : in  std_logic;
+      rst      : in  std_logic;
+      roundkey : in  datablock;
+      datain   : in  datablock;
+      dataout  : out datablock;
+      fc3      : out blockcol;
+      c0       : out blockcol;
+      c1       : out blockcol;
+      c2       : out blockcol;
+      c3       : out blockcol
+      );
 end addkey;
 
 architecture rtl of addkey is
   signal added : datablock;
 begin
-  step1 : keysched1 port map(
-    clk      => clk,
-    rst      => rst,
-    roundkey => roundkey,
-    rcon     => rcon,
-    fc3      => fc3,
-    c0       => c0,
-    c1       => c1,
-    c2       => c2,
-    c3       => c3
-    );
+  step1 : keysched1 generic map(
+    rcon => rcon
+    ) port map(
+      clk      => clk,
+      rst      => rst,
+      roundkey => roundkey,
+      fc3      => fc3,
+      c0       => c0,
+      c1       => c1,
+      c2       => c2,
+      c3       => c3
+      );
   g0 : for i in 3 downto 0 generate
     g1 : for j in 3 downto 0 generate
       added(i, j) <= datain(i, j) xor roundkey(i, j);

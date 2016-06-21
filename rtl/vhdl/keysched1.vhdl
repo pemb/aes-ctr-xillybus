@@ -69,23 +69,24 @@ library work;
 use work.aes_pkg.all;
 
 entity keysched1 is
-  port(
-    clk      : in  std_logic;
-    rst      : in  std_logic;
-    roundkey : in  datablock;
-    rcon     : in  std_logic_vector(7 downto 0);
-    fc3      : out blockcol;
-    c0       : out blockcol;
-    c1       : out blockcol;
-    c2       : out blockcol;
-    c3       : out blockcol
-    );
+  generic (
+    rcon : std_logic_vector(7 downto 0)
+    ); port(
+      clk      : in  std_logic;
+      rst      : in  std_logic;
+      roundkey : in  datablock;
+      fc3      : out blockcol;
+      c0       : out blockcol;
+      c1       : out blockcol;
+      c2       : out blockcol;
+      c3       : out blockcol
+      );
 end keysched1;
 
 architecture rtl of keysched1 is
   signal subst                  : blockcol;
   signal key0, key1, key2, key3 : std_logic_vector(7 downto 0);
-  signal rcon_d : std_logic_vector(7 downto 0);
+  signal rcon_d                 : std_logic_vector(7 downto 0);
 begin
   sub0 : sbox port map(
     clk     => clk,

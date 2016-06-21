@@ -91,19 +91,20 @@ begin
   -- Sbox -> Addkey
   -------------------------------------------------------
   proc : for i in 8 downto 0 generate
-    add : addkey port map(
-      clk      => clk_i,
-      rst      => rst_i,
-      roundkey => key_m(i),
-      datain   => textnet_m_a(i),
-      rcon     => rcon(i),
-      dataout  => textnet_a_s(i),
-      fc3      => fc3(i),
-      c0       => c0(i),
-      c1       => c1(i),
-      c2       => c2(i),
-      c3       => c3(i)
-      );
+    add : addkey generic map(
+      rcon => rcon_const(i)
+      ) port map(
+        clk      => clk_i,
+        rst      => rst_i,
+        roundkey => key_m(i),
+        datain   => textnet_m_a(i),
+        dataout  => textnet_a_s(i),
+        fc3      => fc3(i),
+        c0       => c0(i),
+        c1       => c1(i),
+        c2       => c2(i),
+        c3       => c3(i)
+        );
     sbox : sboxshr port map(
       clk      => clk_i,
       rst      => rst_i,
@@ -125,19 +126,20 @@ begin
       dataout => textnet_m_a(i+1)
       );
   end generate;
-  add_f_1 : addkey port map(
-    clk      => clk_i,
-    rst      => rst_i,
-    roundkey => key_m(9),
-    datain   => textnet_m_a(9),
-    rcon     => rcon(9),
-    dataout  => textnet_a_s(9),
-    fc3      => fc3(9),
-    c0       => c0(9),
-    c1       => c1(9),
-    c2       => c2(9),
-    c3       => c3(9)
-    );
+  add_f_1 : addkey generic map(
+    rcon => rcon_const(9)
+    ) port map(
+      clk      => clk_i,
+      rst      => rst_i,
+      roundkey => key_m(9),
+      datain   => textnet_m_a(9),
+      dataout  => textnet_a_s(9),
+      fc3      => fc3(9),
+      c0       => c0(9),
+      c1       => c1(9),
+      c2       => c2(9),
+      c3       => c3(9)
+      );
   sbox_f_1 : sboxshr port map(
     clk      => clk_i,
     rst      => rst_i,
@@ -150,12 +152,13 @@ begin
     nextkey  => key_s(9),
     blockout => textnet_s_a
     );
-  add_f : addkey port map(
-    clk      => clk_i,
-    rst      => rst_i,
-    roundkey => key_s(9),
-    datain   => textnet_s_a,
-    rcon     => X"00",
-    dataout  => ciphertext_o
-    );
+  add_f : addkey generic map (
+    rcon => X"00"
+    ) port map(
+      clk      => clk_i,
+      rst      => rst_i,
+      roundkey => key_s(9),
+      datain   => textnet_s_a,
+      dataout  => ciphertext_o
+      );
 end rtl;
