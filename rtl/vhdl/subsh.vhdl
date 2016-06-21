@@ -50,15 +50,15 @@
 --
 -- Description: The Sbox and Shiftrows step
 -- Ports:
---			clk: System Clock
---			blockin: Input state block
---			fc3: See keysched1 for explanation
---			c0: See keysched1 for explanation
---			c1: See keysched1 for explanation
---			c2: See keysched1 for explanation
---			c3: See keysched1 for explanation
---			nextkey: Roundkey for next round
---			blockout: output state block
+--                      clk: System Clock
+--                      blockin: Input state block
+--                      fc3: See keysched1 for explanation
+--                      c0: See keysched1 for explanation
+--                      c1: See keysched1 for explanation
+--                      c2: See keysched1 for explanation
+--                      c3: See keysched1 for explanation
+--                      nextkey: Roundkey for next round
+--                      blockout: output state block
 ------------------------------------------------------
 
 library IEEE;
@@ -70,56 +70,56 @@ library work;
 use work.aes_pkg.all;
 
 entity sboxshr is
-port(
-	clk: in std_logic;
-	rst: in std_logic;
-	blockin: in datablock;
-	fc3: in blockcol;
-	c0: in blockcol;
-	c1: in blockcol;
-	c2: in blockcol;
-	c3: in blockcol;
-	nextkey: out datablock;
-	blockout: out datablock
-	);
+  port(
+    clk      : in  std_logic;
+    rst      : in  std_logic;
+    blockin  : in  datablock;
+    fc3      : in  blockcol;
+    c0       : in  blockcol;
+    c1       : in  blockcol;
+    c2       : in  blockcol;
+    c3       : in  blockcol;
+    nextkey  : out datablock;
+    blockout : out datablock
+    );
 end sboxshr;
 
 architecture rtl of sboxshr is
-component sbox is
-port(
-	clk: in std_logic;
-	rst: in std_logic;
-	bytein: in std_logic_vector(7 downto 0);
-	byteout: out std_logic_vector(7 downto 0)
-	);
-end component;
+  component sbox is
+    port(
+      clk     : in  std_logic;
+      rst     : in  std_logic;
+      bytein  : in  std_logic_vector(7 downto 0);
+      byteout : out std_logic_vector(7 downto 0)
+      );
+  end component;
 begin
-	-- The sbox, the output going to the appropriate state byte after shiftrows
-	g0: for i in 3 downto 0 generate
-		g1: for j in 3 downto 0 generate
-			sub: sbox port map(
-							  clk => clk,
-							  rst => rst,
-							  bytein => blockin(i,j),
-							  byteout => blockout(i,(j-i) mod 4)
-							  );
-		end generate;
-	end generate;
-	process(clk,rst)
-	begin
-		if(rst = '1') then
-			nextkey <= zero_data;
-		elsif(rising_edge(clk)) then
-			-- col0 of nextkey = fc3 xor col0
-			-- col1 of nextkey = fc3 xor col0 xor col1
-			-- col2 of nextkey = fc3 xor col0 xor col1 xor col2
-			-- col3 of nextkey = fc3 xor col0 xor col1 xor col2 xor col3
-			genkey: for j in 3 downto 0 loop
-				nextkey(j, 0) <= fc3(j) xor c0(j);
-				nextkey(j, 1) <= fc3(j) xor c1(j);
-				nextkey(j, 2) <= fc3(j) xor c2(j);
-				nextkey(j, 3) <= fc3(j) xor c3(j);
-			end loop;
-		end if;
-	end process;
+  -- The sbox, the output going to the appropriate state byte after shiftrows
+  g0 : for i in 3 downto 0 generate
+    g1 : for j in 3 downto 0 generate
+      sub : sbox port map(
+        clk     => clk,
+        rst     => rst,
+        bytein  => blockin(i, j),
+        byteout => blockout(i, (j-i) mod 4)
+        );
+    end generate;
+  end generate;
+  process(clk, rst)
+  begin
+    if(rst = '1') then
+      nextkey <= zero_data;
+    elsif(rising_edge(clk)) then
+      -- col0 of nextkey = fc3 xor col0
+      -- col1 of nextkey = fc3 xor col0 xor col1
+      -- col2 of nextkey = fc3 xor col0 xor col1 xor col2
+      -- col3 of nextkey = fc3 xor col0 xor col1 xor col2 xor col3
+      genkey : for j in 3 downto 0 loop
+        nextkey(j, 0) <= fc3(j) xor c0(j);
+        nextkey(j, 1) <= fc3(j) xor c1(j);
+        nextkey(j, 2) <= fc3(j) xor c2(j);
+        nextkey(j, 3) <= fc3(j) xor c3(j);
+      end loop;
+    end if;
+  end process;
 end rtl;

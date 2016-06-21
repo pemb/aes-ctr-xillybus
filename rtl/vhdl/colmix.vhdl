@@ -50,12 +50,12 @@
 --
 -- Description: The MixColumns step
 -- Ports:
---			clk: System Clock
---			datain: Input State block
---			inrkey: Input round key for passing on 
---			        to the next stage, i.e. Addkey
---			outrkey: Output round key to next stage
---			dataout: Output state block
+--                      clk: System Clock
+--                      datain: Input State block
+--                      inrkey: Input round key for passing on 
+--                              to the next stage, i.e. Addkey
+--                      outrkey: Output round key to next stage
+--                      dataout: Output state block
 ------------------------------------------------------
 
 library IEEE;
@@ -67,54 +67,54 @@ library work;
 use work.aes_pkg.all;
 
 entity colmix is
-port(
-	clk: in std_logic;
-	rst: in std_logic;
-	datain: in datablock;
-	inrkey: in datablock;
-	outrkey: out datablock;
-	dataout: out datablock
-	);
+  port(
+    clk     : in  std_logic;
+    rst     : in  std_logic;
+    datain  : in  datablock;
+    inrkey  : in  datablock;
+    outrkey : out datablock;
+    dataout : out datablock
+    );
 end colmix;
 
 architecture rtl of colmix is
-component mixcol is
-port(
-	clk: in std_logic;
-	rst: in std_logic;
-	in0: in std_logic_vector(7 downto 0);
-	in1: in std_logic_vector(7 downto 0);
-	in2: in std_logic_vector(7 downto 0);
-	in3: in std_logic_vector(7 downto 0);
-	out0: out std_logic_vector(7 downto 0);
-	out1: out std_logic_vector(7 downto 0);
-	out2: out std_logic_vector(7 downto 0);
-	out3: out std_logic_vector(7 downto 0)
-	);
-end component;
+  component mixcol is
+    port(
+      clk  : in  std_logic;
+      rst  : in  std_logic;
+      in0  : in  std_logic_vector(7 downto 0);
+      in1  : in  std_logic_vector(7 downto 0);
+      in2  : in  std_logic_vector(7 downto 0);
+      in3  : in  std_logic_vector(7 downto 0);
+      out0 : out std_logic_vector(7 downto 0);
+      out1 : out std_logic_vector(7 downto 0);
+      out2 : out std_logic_vector(7 downto 0);
+      out3 : out std_logic_vector(7 downto 0)
+      );
+  end component;
 
 begin
-	-- Do the mixcol operation on all the 4 columns
-	g0: for i in 3 downto 0 generate
-		mix: mixcol port map(
-							clk => clk,
-							rst => rst,
-							in0 => datain(0, i),
-							in1 => datain(1, i),
-							in2 => datain(2, i),
-							in3 => datain(3, i),
-							out0 => dataout(0, i),
-							out1 => dataout(1, i),
-							out2 => dataout(2, i),
-							out3 => dataout(3, i)
-							);
-	end generate;
-	process(clk,rst)
-	begin
-		if(rst = '1') then
-			outrkey <= zero_data;
-		elsif(rising_edge(clk)) then
-			outrkey <= inrkey;
-		end if;
-	end process;
+  -- Do the mixcol operation on all the 4 columns
+  g0 : for i in 3 downto 0 generate
+    mix : mixcol port map(
+      clk  => clk,
+      rst  => rst,
+      in0  => datain(0, i),
+      in1  => datain(1, i),
+      in2  => datain(2, i),
+      in3  => datain(3, i),
+      out0 => dataout(0, i),
+      out1 => dataout(1, i),
+      out2 => dataout(2, i),
+      out3 => dataout(3, i)
+      );
+  end generate;
+  process(clk, rst)
+  begin
+    if(rst = '1') then
+      outrkey <= zero_data;
+    elsif(rising_edge(clk)) then
+      outrkey <= inrkey;
+    end if;
+  end process;
 end rtl;
