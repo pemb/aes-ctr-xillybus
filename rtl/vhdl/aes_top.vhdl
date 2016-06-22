@@ -75,10 +75,10 @@ entity aes_top is
 end aes_top;
 
 architecture rtl of aes_top is
-  signal fc3, c0, c1, c2, c3                   : colnet(9 downto 0);
-  signal textnet_a_s, textnet_s_m, textnet_m_a : datanet(9 downto 0);
+  signal fc3                    : colnet(9 downto 0);
+  signal c, textnet_a_s, textnet_s_m, textnet_m_a : datanet(9 downto 0);
   signal key_m, key_s                          : datanet(9 downto 0);
-  signal textnet_s_a               : std_logic_vector(127 downto 0);
+  signal textnet_s_a              : std_logic_vector(127 downto 0);
 
 begin
   key_m(0)       <= keyblock_i;
@@ -100,20 +100,14 @@ begin
         datain   => textnet_m_a(i),
         dataout  => textnet_a_s(i),
         fc3      => fc3(i),
-        c0       => c0(i),
-        c1       => c1(i),
-        c2       => c2(i),
-        c3       => c3(i)
+        c       => c(i)
         );
     sbox : sboxshr port map(
       clk      => clk_i,
       rst      => rst_i,
       blockin  => textnet_a_s(i),
       fc3      => fc3(i),
-      c0       => c0(i),
-      c1       => c1(i),
-      c2       => c2(i),
-      c3       => c3(i),
+      c       => c(i),
       nextkey  => key_s(i),
       blockout => textnet_s_m(i)
       );
@@ -135,20 +129,14 @@ begin
       datain   => textnet_m_a(9),
       dataout  => textnet_a_s(9),
       fc3      => fc3(9),
-      c0       => c0(9),
-      c1       => c1(9),
-      c2       => c2(9),
-      c3       => c3(9)
+      c       => c(9)
       );
   sbox_f_1 : sboxshr port map(
     clk      => clk_i,
     rst      => rst_i,
     blockin  => textnet_a_s(9),
     fc3      => fc3(9),
-    c0       => c0(9),
-    c1       => c1(9),
-    c2       => c2(9),
-    c3       => c3(9),
+    c       => c(9),
     nextkey  => key_s(9),
     blockout => textnet_s_a
     );

@@ -79,11 +79,8 @@ entity addkey is
       roundkey : in  std_logic_vector(127 downto 0);
       datain   : in  std_logic_vector(127 downto 0);
       dataout  : out std_logic_vector(127 downto 0);
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol
+      fc3      : out std_logic_vector(31 downto 0);
+      c        : out std_logic_vector(127 downto 0)
       );
 end addkey;
 
@@ -96,10 +93,7 @@ begin
       rst      => rst,
       roundkey => roundkey,
       fc3      => fc3,
-      c0       => c0,
-      c1       => c1,
-      c2       => c2,
-      c3       => c3
+      c        => c
       );
 
   process(clk, rst)

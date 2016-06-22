@@ -75,21 +75,22 @@ entity keysched1 is
       clk      : in  std_logic;
       rst      : in  std_logic;
       roundkey : in  std_logic_vector(127 downto 0);
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol
+      fc3      : out std_logic_vector(31 downto 0);
+      c       : out std_logic_vector(127 downto 0)
       );
 end keysched1;
 
 architecture rtl of keysched1 is
-  signal subst                  : blockcol;
+  signal subst, fc3_col          : blockcol;
   signal key0, key1, key2, key3 : std_logic_vector(7 downto 0);
   signal rcon_d                 : std_logic_vector(7 downto 0);
-  signal rk_block : datablock;
+  signal rk_block, c_blk: datablock;
 begin
+
   rk_block <= slv2db(roundkey);
+  c <= db2slv(c_blk);
+  fc3 <= bc2slv(fc3_col);
+
   g0: for i in 0 to 3 generate
     sub : sbox port map(
       clk     => clk,
@@ -98,26 +99,23 @@ begin
       byteout => subst((i+3) mod 4)
       );
   end generate;
-  
-  fc3(0) <= subst(0) xor rcon_d;
-  fc3(1) <= subst(1);
-  fc3(2) <= subst(2);
-  fc3(3) <= subst(3);
+
+  fc3_col(0) <= subst(0) xor rcon_d;
+  fc3_col(1) <= subst(1);
+  fc3_col(2) <= subst(2);
+  fc3_col(3) <= subst(3);
   process(clk, rst)
   begin
     if(rst = '1') then
       rcon_d <= X"00";
-      c0     <= zero_col;
-      c1     <= zero_col;
-      c2     <= zero_col;
-      c3     <= zero_col;
+      c_blk     <= zero_data;
     elsif(rising_edge(clk)) then
       rcon_d <= rcon;
       for j in 3 downto 0 loop
-        c0(j) <= rk_block(0)(j);
-        c1(j) <= rk_block(0)(j) xor rk_block(1)(j);
-        c2(j) <= rk_block(0)(j) xor rk_block(1)(j) xor rk_block(2)(j);
-        c3(j) <= rk_block(0)(j) xor rk_block(1)(j) xor rk_block(2)(j) xor rk_block(3)(j);
+        c_blk(0)(j) <= rk_block(0)(j);
+        c_blk(1)(j) <= rk_block(0)(j) xor rk_block(1)(j);
+        c_blk(2)(j) <= rk_block(0)(j) xor rk_block(1)(j) xor rk_block(2)(j);
+        c_blk(3)(j) <= rk_block(0)(j) xor rk_block(1)(j) xor rk_block(2)(j) xor rk_block(3)(j);
       end loop;
     end if;
   end process;

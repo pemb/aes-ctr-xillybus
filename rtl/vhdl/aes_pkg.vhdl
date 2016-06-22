@@ -61,7 +61,7 @@ package aes_pkg is
   type datablock is array(3 downto 0) of blockcol;
   constant zero_data  : datablock := (others => (others => (others => '0')));
   -- Vector of columns
-  type colnet is array(natural range<>) of blockcol;
+  type colnet is array(natural range<>) of std_logic_vector(31 downto 0);
   -- Vector of blocks
   type datanet is array(natural range<>) of std_logic_vector(127 downto 0);
   -- the 10 rcon bytes
@@ -72,16 +72,17 @@ package aes_pkg is
 
   function slv2db(slv : std_logic_vector(127 downto 0)) return datablock;
 
+  function bc2slv(bc : blockcol) return std_logic_vector;
+
+  function slv2bc(slv : std_logic_vector(31 downto 0)) return blockcol;
+
   component sboxshr is
     port(
       clk      : in  std_logic;
       rst      : in  std_logic;
       blockin  : in  std_logic_vector(127 downto 0);
-      fc3      : in  blockcol;
-      c0       : in  blockcol;
-      c1       : in  blockcol;
-      c2       : in  blockcol;
-      c3       : in  blockcol;
+      fc3      : in  std_logic_vector(31 downto 0);
+      c        : in  std_logic_vector(127 downto 0);
       nextkey  : out std_logic_vector(127 downto 0);
       blockout : out std_logic_vector(127 downto 0)
       );
@@ -93,22 +94,20 @@ package aes_pkg is
       datain  : in  std_logic_vector(127 downto 0);
       inrkey  : in  std_logic_vector(127 downto 0);
       outrkey : out std_logic_vector(127 downto 0);
-      dataout : out std_logic_vector(127 downto 0)); 
+      dataout : out std_logic_vector(127 downto 0));
   end component colmix;
   component addkey is
     generic (
-      rcon : std_logic_vector(7 downto 0)); 
+      rcon : std_logic_vector(7 downto 0));
     port (
       clk      : in  std_logic;
       rst      : in  std_logic;
       roundkey : in  std_logic_vector(127 downto 0);
       datain   : in  std_logic_vector(127 downto 0);
       dataout  : out std_logic_vector(127 downto 0);
-      fc3      : out blockcol;
-      c0       : out blockcol;
-      c1       : out blockcol;
-      c2       : out blockcol;
-      c3       : out blockcol); 
+      fc3      : out std_logic_vector(31 downto 0);
+      c        : out std_logic_vector(127 downto 0)
+      );
   end component addkey;
   component keysched1 is
     generic (
@@ -117,12 +116,8 @@ package aes_pkg is
         clk      : in  std_logic;
         rst      : in  std_logic;
         roundkey : in  std_logic_vector(127 downto 0);
-        fc3      : out blockcol;
-        c0       : out blockcol;
-        c1       : out blockcol;
-        c2       : out blockcol;
-        c3       : out blockcol
-        );
+        fc3      : out std_logic_vector(31 downto 0);
+        c        : out std_logic_vector(127 downto 0));
   end component;
   component mixcol is
     port(
@@ -168,7 +163,7 @@ package body aes_pkg is
     l0 : for i in 0 to 3 loop
       l1 : for j in 0 to 3 loop
         temp(index+7 downto index) := db(3-i)(3-j);
-        index := index + 8;
+        index                      := index + 8;
       end loop;
     end loop;
     return temp;
@@ -181,11 +176,29 @@ package body aes_pkg is
     l0 : for i in 0 to 3 loop
       l1 : for j in 0 to 3 loop
         temp(3-i)(3-j) := slv(index+7 downto index);
-        index := index + 8;
+        index          := index + 8;
       end loop;
     end loop;
     return temp;
   end slv2db;
+
+  function bc2slv(bc : blockcol) return std_logic_vector is
+    variable temp : std_logic_vector(31 downto 0);
+  begin
+    l0 : for i in 0 to 3 loop
+      temp(8*i+7 downto 8*i) := bc(i);
+    end loop;
+    return temp;
+  end bc2slv;
+
+  function slv2bc(slv : std_logic_vector(31 downto 0)) return blockcol is
+    variable temp : blockcol;
+  begin
+    l0 : for i in 0 to 3 loop
+      temp(i) := slv((8*i+7) downto (8*i));
+    end loop;
+    return temp;
+  end slv2bc;
 
 end aes_pkg;
 

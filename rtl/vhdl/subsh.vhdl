@@ -74,24 +74,20 @@ entity sboxshr is
     clk      : in  std_logic;
     rst      : in  std_logic;
     blockin  : in  std_logic_vector(127 downto 0);
-    fc3      : in  blockcol;
-    c0       : in  blockcol;
-    c1       : in  blockcol;
-    c2       : in  blockcol;
-    c3       : in  blockcol;
+    fc3      : in  std_logic_vector(31 downto 0);
+    c        : in  std_logic_vector(127 downto 0);
     nextkey  : out std_logic_vector(127 downto 0);
     blockout : out std_logic_vector(127 downto 0)
     );
 end sboxshr;
 
 architecture rtl of sboxshr is
-  signal bi_blk, bo_blk, nk_blk : datablock;
+  signal bi_blk, bo_blk : datablock;
 begin
   -- The sbox, the output going to the appropriate state byte after shiftrows
-  bi_blk <= slv2db(blockin);
+  bi_blk   <= slv2db(blockin);
   blockout <= db2slv(bo_blk);
-  nextkey <= db2slv(nk_blk);
-  
+
   g0 : for i in 3 downto 0 generate
     g1 : for j in 3 downto 0 generate
       sub : sbox port map(
@@ -103,20 +99,20 @@ begin
     end generate;
   end generate;
   process(clk, rst)
+    variable fc3_c : blockcol;
+    variable fc3_b : std_logic_vector(127 downto 0);
   begin
     if(rst = '1') then
-      nk_blk <= zero_data;
+      --nk_blk <= zero_data;
+      nextkey <= (others => '0');
     elsif(rising_edge(clk)) then
       -- col0 of nextkey = fc3 xor col0
       -- col1 of nextkey = fc3 xor col0 xor col1
       -- col2 of nextkey = fc3 xor col0 xor col1 xor col2
       -- col3 of nextkey = fc3 xor col0 xor col1 xor col2 xor col3
-      genkey : for j in 3 downto 0 loop
-        nk_blk(0)(j) <= fc3(j) xor c0(j);
-        nk_blk(1)(j) <= fc3(j) xor c1(j);
-        nk_blk(2)(j) <= fc3(j) xor c2(j);
-        nk_blk(3)(j) <= fc3(j) xor c3(j);
-      end loop;
+      fc3_c := slv2bc(fc3);
+      fc3_b := db2slv((fc3_c, fc3_c, fc3_c, fc3_c));
+      nextkey <= fc3_b xor c;
     end if;
   end process;
 end rtl;
