@@ -120,19 +120,12 @@ package aes_pkg is
         c        : out std_logic_vector(127 downto 0));
   end component;
   component mixcol is
-    port(
+    port (
       clk  : in  std_logic;
       rst  : in  std_logic;
-      in0  : in  std_logic_vector(7 downto 0);
-      in1  : in  std_logic_vector(7 downto 0);
-      in2  : in  std_logic_vector(7 downto 0);
-      in3  : in  std_logic_vector(7 downto 0);
-      out0 : out std_logic_vector(7 downto 0);
-      out1 : out std_logic_vector(7 downto 0);
-      out2 : out std_logic_vector(7 downto 0);
-      out3 : out std_logic_vector(7 downto 0)
-      );
-  end component;
+      din  : in  std_logic_vector(31 downto 0);
+      dout : out std_logic_vector(31 downto 0));
+  end component mixcol;
   component sbox is
     port(
       clk     : in  std_logic;

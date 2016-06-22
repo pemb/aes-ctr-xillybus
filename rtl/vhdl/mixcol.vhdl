@@ -75,14 +75,8 @@ entity mixcol is
   port(
     clk  : in  std_logic;
     rst  : in  std_logic;
-    in0  : in  std_logic_vector(7 downto 0);
-    in1  : in  std_logic_vector(7 downto 0);
-    in2  : in  std_logic_vector(7 downto 0);
-    in3  : in  std_logic_vector(7 downto 0);
-    out0 : out std_logic_vector(7 downto 0);
-    out1 : out std_logic_vector(7 downto 0);
-    out2 : out std_logic_vector(7 downto 0);
-    out3 : out std_logic_vector(7 downto 0)
+    din  : in  std_logic_vector(31 downto 0);
+    dout : out std_logic_vector(31 downto 0)
     );
 end mixcol;
 
@@ -91,53 +85,39 @@ architecture rtl of mixcol is
   signal t0, t1, t2, t3     : std_logic_vector(7 downto 0);
   signal sh0, sh1, sh2, sh3 : std_logic_vector(7 downto 0);
   signal xored              : std_logic_vector(7 downto 0);
-
+  signal col_in, col_out, sh, d, t   : blockcol;
 begin
-  sh0(0) <= '0';
-  sh1(0) <= '0';
-  sh2(0) <= '0';
-  sh3(0) <= '0';
-  -----------------------------------------------------
-  -- In GF(2^8) 2*x = (x << 1) xor 0x1b if x(7) = '1'
-  --                  (x << 1) else
-  -- This just left shifts each byte by 1.
-  shift : for i in 7 downto 1 generate
-    sh0(i) <= in0(i-1);
-    sh1(i) <= in1(i-1);
-    sh2(i) <= in2(i-1);
-    sh3(i) <= in3(i-1);
+
+  col_in <= slv2bc(din);
+
+  xored <= col_in(0) xor col_in(1) xor col_in(2) xor col_in(3);
+
+  shift : for i in 0 to 3 generate
+    -----------------------------------------------------
+    -- In GF(2^8) 2*x = (x << 1) xor 0x1b if x(7) = '1'
+    --                  (x << 1) else
+    -- This just left shifts each byte by 1.
+
+    sh(i) <= col_in(i)(6 downto 0) & "0";
+
+    -- Conditional XOR'ing
+    d(i) <= sh(i) xor X"1b" when col_in(i)(7) = '1' else sh(i);
+
+    ----------------------------------------------------
+    -- 3*x = 2*x xor x
+    ----------------------------------------------------
+
+    t(i) <= d(i) xor col_in(i);
+    col_out(i) <= xored xor t(i) xor d((i+1) mod 4);
   end generate;
-  -- Conditional XOR'ing
-  d0 <= sh0 xor X"1b" when in0(7) = '1' else
-        sh0;
-  d1 <= sh1 xor X"1b" when in1(7) = '1' else
-        sh1;
-  d2 <= sh2 xor X"1b" when in2(7) = '1' else
-        sh2;
-  d3 <= sh3 xor X"1b" when in3(7) = '1' else
-        sh3;
 
-  ----------------------------------------------------
-  -- 3*x = 2*x xor x
-  ----------------------------------------------------
-  t0 <= d0 xor in0;
-  t1 <= d1 xor in1;
-  t2 <= d2 xor in2;
-  t3 <= d3 xor in3;
 
-  xored <= in0 xor in1 xor in2 xor in3;
   process(clk, rst)
   begin
     if(rst = '1') then
-      out0 <= X"00";
-      out1 <= X"00";
-      out2 <= X"00";
-      out3 <= X"00";
+      dout <= (others => '0');
     elsif(rising_edge(clk)) then
-      out0 <= xored xor t0 xor d1;
-      out1 <= xored xor t1 xor d2;
-      out2 <= xored xor t2 xor d3;
-      out3 <= xored xor t3 xor d0;
+      dout <= bc2slv(col_out);
     end if;
   end process;
 end rtl;

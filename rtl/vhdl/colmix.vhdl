@@ -78,24 +78,19 @@ entity colmix is
 end colmix;
 
 architecture rtl of colmix is
-  signal blockin, blockout: datablock;
+  signal bi: datablock;
+  signal bo : colnet(3 downto 0);
 begin
-  blockin <= slv2db(datain);
-  dataout <= db2slv(blockout);
+  bi <= slv2db(datain);
+  dataout <= db2slv((slv2bc(bo(3)),slv2bc(bo(2)),slv2bc(bo(1)),slv2bc(bo(0))));
   
   -- Do the mixcol operation on all the 4 columns
   g0 : for i in 3 downto 0 generate
     mix : mixcol port map(
       clk  => clk,
       rst  => rst,
-      in0  => blockin(i)(0),
-      in1  => blockin(i)(1),
-      in2  => blockin(i)(2),
-      in3  => blockin(i)(3),
-      out0 => blockout(i)(0),
-      out1 => blockout(i)(1),
-      out2 => blockout(i)(2),
-      out3 => blockout(i)(3)
+      din  => bc2slv(bi(i)),
+      dout => bo(i)
       );
   end generate;
   process(clk, rst)
