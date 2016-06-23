@@ -60,8 +60,6 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_arith.all;
-use IEEE.std_logic_unsigned.all;
 
 library work;
 use work.aes_pkg.all;
@@ -72,7 +70,7 @@ entity colmix is
     rst     : in  std_logic;
     datain  : in  std_logic_vector(127 downto 0);
     inrkey  : in  std_logic_vector(127 downto 0);
-    outrkey : out std_logic_vector(127 downto 0);
+    outrkey : out std_logic_vector(127 downto 0) := (others => '0');
     dataout : out std_logic_vector(127 downto 0)
     );
 end colmix;
@@ -82,23 +80,23 @@ architecture rtl of colmix is
   signal bo : colnet(3 downto 0);
 begin
   bi <= slv2db(datain);
-  dataout <= db2slv((slv2bc(bo(3)),slv2bc(bo(2)),slv2bc(bo(1)),slv2bc(bo(0))));
-  
+
   -- Do the mixcol operation on all the 4 columns
   g0 : for i in 3 downto 0 generate
     mix : mixcol port map(
-      clk  => clk,
-      rst  => rst,
       din  => bc2slv(bi(i)),
       dout => bo(i)
       );
   end generate;
+
   process(clk, rst)
   begin
     if(rst = '1') then
       outrkey <= (others => '0');
+      dataout    <= (others => '0');
     elsif(rising_edge(clk)) then
       outrkey <= inrkey;
+      dataout <= bo(0) & bo(1) & bo(2) & bo(3);
     end if;
   end process;
 end rtl;

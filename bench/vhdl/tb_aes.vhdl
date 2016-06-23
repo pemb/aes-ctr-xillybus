@@ -70,7 +70,7 @@ end tb_aes;
 architecture rtl of tb_aes is
   signal clk          : std_logic;         -- clock
   signal plaintext    : std_logic_vector(127 downto 0);
-  signal key          : std_logic_vector(127 downto 0);
+  signal key          : std_logic_vector(127 downto 0) := (others => '0');
   signal cipher       : std_logic_vector(127 downto 0);
   signal rst          : std_logic;         -- reset input
   signal op_start     : std_logic;         -- signal that output started
@@ -109,7 +109,7 @@ begin
 
   -- generate the inputs and check against expected output
   gen_in : process
-    file testfile                       : text open read_mode is "../src/vectors.dat";
+    file testfile                       : text open read_mode is "vectors.dat";
     variable line_in                    : line;
     variable plaintext_block, key_block : std_logic_vector(127 downto 0);
   begin
@@ -138,9 +138,8 @@ begin
 
   -- Compare output with actual output file
   op_chk : process
-    file opfile                               : text open read_mode is "../src/cipher.dat";
-    file logfile                              : text open write_mode is "../log/output.log";
-    variable line_in, line_out, line_out_file : line;
+    file opfile                               : text open read_mode is "cipher.dat";
+    variable line_in, line_out : line;
     variable exp_cipher_block                 : std_logic_vector(127 downto 0);
     variable succeded                         : boolean;
     variable all_ok                           : boolean := true;
@@ -152,13 +151,9 @@ begin
         if(all_ok = true) then
           write(line_out, string'("OK"));
           writeline(OUTPUT, line_out);
-          write(line_out_file, string'("OK"));
-          writeline(logfile, line_out_file);
         else
           write(line_out, string'("FAIL"));
           writeline(OUTPUT, line_out);
-          write(line_out_file, string'("FAIL"));
-          writeline(logfile, line_out_file);
         end if;
         sim_end <= '1';
         wait;
@@ -174,15 +169,11 @@ begin
 
       -- writing the output line
       hwrite(line_out, cipher);
-      hwrite(line_out_file, cipher);
 
       write(line_out, ' ');
-      write(line_out_file, ' ');
       -- writing the comparison result
       write(line_out, succeded);
       writeline(OUTPUT, line_out);
-      write(line_out_file, succeded);
-      writeline(logfile, line_out_file);
     end if;
     wait for clk_period;
   end process;

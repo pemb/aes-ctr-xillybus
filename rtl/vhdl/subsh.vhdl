@@ -63,8 +63,7 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_arith.all;
-use IEEE.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
 
 library work;
 use work.aes_pkg.all;
@@ -76,43 +75,38 @@ entity sboxshr is
     blockin  : in  std_logic_vector(127 downto 0);
     fc3      : in  std_logic_vector(31 downto 0);
     c        : in  std_logic_vector(127 downto 0);
-    nextkey  : out std_logic_vector(127 downto 0);
+    nextkey  : out std_logic_vector(127 downto 0) := (others => '0');
     blockout : out std_logic_vector(127 downto 0)
     );
 end sboxshr;
 
 architecture rtl of sboxshr is
-  signal bi_blk, bo_blk : datablock;
+  signal bi_blk, bo_blk : datablock := zero_data;
 begin
   -- The sbox, the output going to the appropriate state byte after shiftrows
   bi_blk   <= slv2db(blockin);
-  blockout <= db2slv(bo_blk);
+
+  -- sbox and shift rows
 
   g0 : for i in 3 downto 0 generate
     g1 : for j in 3 downto 0 generate
-      sub : sbox port map(
-        clk     => clk,
-        rst     => rst,
-        bytein  => bi_blk(j)(i),
-        byteout => bo_blk((j-i) mod 4)(i)
-        );
+      bo_blk((j-i) mod 4)(i) <= sbox(bi_blk(j)(i));
     end generate;
   end generate;
+
   process(clk, rst)
-    variable fc3_c : blockcol;
-    variable fc3_b : std_logic_vector(127 downto 0);
   begin
     if(rst = '1') then
       --nk_blk <= zero_data;
       nextkey <= (others => '0');
+      blockout <= (others => '0');
     elsif(rising_edge(clk)) then
       -- col0 of nextkey = fc3 xor col0
       -- col1 of nextkey = fc3 xor col0 xor col1
       -- col2 of nextkey = fc3 xor col0 xor col1 xor col2
       -- col3 of nextkey = fc3 xor col0 xor col1 xor col2 xor col3
-      fc3_c := slv2bc(fc3);
-      fc3_b := db2slv((fc3_c, fc3_c, fc3_c, fc3_c));
-      nextkey <= fc3_b xor c;
+      nextkey <= (fc3 & fc3 & fc3 & fc3) xor c;
+      blockout <= db2slv(bo_blk);
     end if;
   end process;
 end rtl;

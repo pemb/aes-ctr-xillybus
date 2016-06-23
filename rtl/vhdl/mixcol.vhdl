@@ -65,25 +65,18 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_arith.all;
-use IEEE.std_logic_unsigned.all;
 
 library work;
 use work.aes_pkg.all;
 
 entity mixcol is
   port(
-    clk  : in  std_logic;
-    rst  : in  std_logic;
     din  : in  std_logic_vector(31 downto 0);
     dout : out std_logic_vector(31 downto 0)
     );
 end mixcol;
 
 architecture rtl of mixcol is
-  signal d0, d1, d2, d3     : std_logic_vector(7 downto 0);
-  signal t0, t1, t2, t3     : std_logic_vector(7 downto 0);
-  signal sh0, sh1, sh2, sh3 : std_logic_vector(7 downto 0);
   signal xored              : std_logic_vector(7 downto 0);
   signal col_in, col_out, sh, d, t   : blockcol;
 begin
@@ -111,13 +104,6 @@ begin
     col_out(i) <= xored xor t(i) xor d((i+1) mod 4);
   end generate;
 
+  dout <= bc2slv(col_out);
 
-  process(clk, rst)
-  begin
-    if(rst = '1') then
-      dout <= (others => '0');
-    elsif(rising_edge(clk)) then
-      dout <= bc2slv(col_out);
-    end if;
-  end process;
 end rtl;

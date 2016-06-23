@@ -64,8 +64,6 @@
 
 library IEEE;
 use IEEE.std_logic_1164.all;
-use IEEE.std_logic_arith.all;
-use IEEE.std_logic_unsigned.all;
 
 library work;
 use work.aes_pkg.all;
@@ -78,7 +76,7 @@ entity addkey is
       rst      : in  std_logic;
       roundkey : in  std_logic_vector(127 downto 0);
       datain   : in  std_logic_vector(127 downto 0);
-      dataout  : out std_logic_vector(127 downto 0);
+      dataout  : out std_logic_vector(127 downto 0) := (others => '0');
       fc3      : out std_logic_vector(31 downto 0);
       c        : out std_logic_vector(127 downto 0)
       );
